@@ -1,6 +1,5 @@
 # Interview Preparation
 
--------------------------------------------------------------------------------
 ### 1. Explain "hoisting".
 
 Hoisting is a JavaScript mechanism where variables and function declarations are moved to the top of their scope before code execution.
@@ -321,3 +320,72 @@ It is recommended to keep all declarations at the top of each script or function
 * It provides a single place to look for local variables
 * Easy to avoid unwanted global variables
 * It reduces the possibility of unwanted re-declarations
+-------------------------------------------------------------------------------
+### 11. What are the benefits of initializing variables?
+
+It is recommended to initialize variables because of the below benefits,
+
+* It gives cleaner code
+* It provides a single place to initialize variables
+* Avoid undefined values in the code
+
+-------------------------------------------------------------------------------
+### 12. What is a spread operator?
+
+```
+var firstGroup = ["C", "C++", "Java"];
+var secondGroup = ["SQL", "MySQL", "BigData"];
+var thirdGroup = ["Android", "Python", "Ruby", firstGroup, secondGroup];
+var finalGroup = ["Android", "Python", "Ruby", ...firstGroup, ...secondGroup];
+
+console.log(thirdGroup); 
+// ["Android", "Python", "Ruby", ["C", "C++", "Java"], ["SQL", "MySQL", "BigData"]]
+console.log(finalGroup); 
+// ["Android", "Python", "Ruby", "C", "C++", "Java", "SQL", "MySQL", "BigData"]
+```
+> Works for **Object** too
+
+> [Reference](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Spread_syntax)
+
+-------------------------------------------------------------------------------
+### 13. What's the difference between a variable that is: null, undefined or undeclared?
+
+**Undeclared** variables are created when you assign a value to an identifier that is not previously created using `var`, `let` or `const`. Undeclared variables will be defined globally, outside of the current scope. In strict mode, a `ReferenceError` will be thrown when you try to assign to an undeclared variable. Undeclared variables are bad just like how global variables are bad. Avoid them at all cost! To check for them, wrap its usage in a `try`/`catch` block.
+```javascript
+function foo() {
+  x = 1; // Throws a ReferenceError in strict mode
+}
+foo();
+console.log(x); // 1
+```
+A variable that is **`undefined`** is a variable that has been declared, but not assigned a value. It is of type `undefined`. If a function does not return any value as the result of executing it is assigned to a variable, the variable also has the value of `undefined`. To check for it, compare using the strict equality (`===`) operator or `typeof` which will give the `'undefined'` string. Note that you should not be using the abstract equality operator to check, as it will also return `true` if the value is `null`.
+```javascript
+var foo;
+console.log(foo); // undefined
+console.log(foo === undefined); // true
+console.log(typeof foo === 'undefined'); // true
+console.log(foo == null); // true. Wrong, don't use this to check!
+function bar() {}
+var baz = bar();
+console.log(baz); // undefined
+```
+A variable that is **`null`** will have been explicitly assigned to the `null` value. It represents no value and is different from `undefined` in the sense that it has been explicitly assigned. To check for `null,` simply compare using the strict equality operator. Note that like the above, you should not be using the abstract equality operator (`==`) to check, as it will also return `true` if the value is `undefined`.
+```javascript
+var foo = null;
+console.log(foo === null); // true
+console.log(typeof foo === 'object'); // true
+console.log(foo == undefined); // true. Wrong, don't use this to check!
+```
+As a personal habit, I never leave my variables undeclared or unassigned. I will explicitly assign `null` to them after declaring if I don't intend to use it yet. If you use a linter in your workflow, it will usually also be able to check that you are not referencing undeclared variables.
+
+-------------------------------------------------------------------------------
+### 14. What is a closure, and how/why would you use one?
+
+A closure is the combination of a function and the lexical environment within which that function was declared. The word "lexical" refers to the fact that lexical scoping uses the location where a variable is declared within the source code to determine where that variable is available. Closures are functions that have access to the outer (enclosing) function's variables—scope chain even after the outer function has returned.
+
+**Why would you use one?**
+
+* Data privacy / emulating private methods with closures. Commonly used in the [module pattern](https://addyosmani.com/resources/essentialjsdesignpatterns/book/#modulepatternjavascript).
+* [Partial applications or currying](https://medium.com/javascript-scene/curry-or-partial-application-8150044c78b8#.l4b6l1i3x).
+
+> [W3School](https://www.w3schools.com/js/js_function_closures.asp)
