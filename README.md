@@ -108,6 +108,7 @@ foo = 'bar';
 const baz = 'baz';
 baz = 'qux';
 ```
+
 --------------------------------------------------------------------------------
 ### 3. Can you give an example for destructuring an object or an array?
 
@@ -320,6 +321,7 @@ It is recommended to keep all declarations at the top of each script or function
 * It provides a single place to look for local variables
 * Easy to avoid unwanted global variables
 * It reduces the possibility of unwanted re-declarations
+
 -------------------------------------------------------------------------------
 ### 11. What are the benefits of initializing variables?
 
@@ -500,7 +502,6 @@ console.log(person); // Person { name: "John" }
 console.log(person.name); // "john"
 ```
 
-
 --------------------------
 ### 17. Explain Function.prototype.bind
 
@@ -575,7 +576,6 @@ class Student extends Person {
 ```
 
 It's much more verbose to use inheritance in ES5 and the ES6 version is easier to understand and remember.
-
 
 ---------------------------
 ### 20. Can you offer a use case for the new arrow => function syntax? How does this new syntax differ from other functions?
