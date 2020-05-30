@@ -740,3 +740,626 @@ function add(a, b) {
 console.log(add.call(null, 1, 2)); // 3
 console.log(add.apply(null, [1, 2])); // 3
 ```
+-------------------------------------------------------------------------
+### 31. Explain Function.prototype.bind.
+
+Taken word-for-word from [MDN](https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/Global_objects/Function/bind):
+
+> The `bind()` method creates a new function that, when called, has its `this` keyword set to the provided value, with a given sequence of arguments preceding any provided when the new function is called.
+
+In my experience, it is most useful for binding the value of `this` in methods of classes that you want to pass into other functions. This is frequently done in React components.
+
+> [Resource](https://www.codementor.io/@niladrisekhardutta/how-to-call-apply-and-bind-in-javascript-8i1jca6jp) | [Medium](https://medium.com/@ivansifrim/the-differences-between-call-apply-bind-276724bb825b)
+
+-------------------------------------------------------------------------
+### 32. What is the definition of a higher-order function?
+
+A higher-order function is any function that takes one or more functions as arguments, which it uses to operate on some data, and/or returns a function as a result. Higher-order functions are meant to abstract some operation that is performed repeatedly. The classic example of this is `map`, which takes an array and a function as arguments. `map` then uses this function to transform each item in the array, returning a new array with the transformed data. Other popular examples in JavaScript are `forEach`, `filter`, and `reduce`. A higher-order function doesn't just need to be manipulating arrays as there are many use cases for returning a function from another function. `Function.prototype.bind` is one such example in JavaScript.
+
+**Map**
+
+Let say we have an array of names which we need to transform each string to uppercase.
+
+```javascript
+const names = ['irish', 'daisy', 'anna'];
+```
+
+The imperative way will be as such:
+
+```javascript
+const transformNamesToUppercase = function(names) {
+  const results = [];
+  for (let i = 0; i < names.length; i++) {
+    results.push(names[i].toUpperCase());
+  }
+  return results;
+};
+transformNamesToUppercase(names); // ['IRISH', 'DAISY', 'ANNA']
+```
+
+Use `.map(transformerFn)` makes the code shorter and more declarative.
+
+```javascript
+const transformNamesToUppercase = function(names) {
+  return names.map(name => name.toUpperCase());
+};
+transformNamesToUppercase(names); // ['IRISH', 'DAISY', 'ANNA']
+```
+> Q.22
+
+-------------------------------------------------------------------------
+### 33. Can you give an example of a curry function and why this syntax offers an advantage?
+
+Currying is the process of taking a function with multiple arguments and turning it into a sequence of functions each with only a single argument. 
+
+```javascript
+function volume(length) {
+  return function(width) {
+    return function(height) {
+      return height * width * length;
+    }
+  }
+}
+
+volume(2)(3)(4); // 24
+```
+
+Curried functions are great to improve code re-usability and functional composition.
+
+Currying is a pattern where a function with more than one parameter is broken into multiple functions that, when called in series, will accumulate all of the required parameters one at a time. This technique can be useful for making code written in a functional style easier to read and compose. It's important to note that for a function to be curried, it needs to start out as one function, then broken out into a sequence of functions that each accepts one parameter.
+
+```javascript
+function curry(fn) {
+  if (fn.length === 0) {
+    return fn;
+  }
+
+  function _curried(depth, args) {
+    return function(newArgument) {
+      if (depth - 1 === 0) {
+        return fn(...args, newArgument);
+      }
+      return _curried(depth - 1, [...args, newArgument]);
+    };
+  }
+
+  return _curried(fn.length, []);
+}
+
+function add(a, b) {
+  return a + b;
+}
+
+var curriedAdd = curry(add);
+var addFive = curriedAdd(5);
+
+var result = [0, 1, 2, 3, 4, 5].map(addFive); // [5, 6, 7, 8, 9, 10]
+```
+> [Resource](https://javascript.info/currying-partials)
+
+-------------------------------------------------------------------------
+### 34. What is a unary function?
+
+Unary function (i.e. monadic) is a function that accepts exactly one argument. Let us take an example of unary function. It stands for single argument accepted by a function.
+```javascript
+const unaryFunction = a => console.log (a + 10); //Add 10 to the given argument and display the value
+```
+-------------------------------------------------------------------------
+### 35. What is a pure function?
+
+Pure functions are functions that accept an input and returns a value without modifying any data outside its scope(Side Effects). Its output or return value must depend on the input/arguments and pure functions must return a value.
+
+**Example**
+```javascript
+function impure(arg) {
+    finalR.s = 90
+    return arg * finalR.s
+}
+```
+The above function is not a pure function because it modified a state `finalR.s` outside its scope.
+```javascript
+function pure(arg) {
+    return arg * 4
+}
+```
+Here is a pure function. It didn’t side effect any external state and it returns an output based on the input.
+
+A function must pass two tests to be considered “pure”:
+
+1. Same inputs always return same outputs
+1. No side-effects 
+
+**1. Same Input => Same Output**  
+Compare this:
+```javascript
+const add = (x, y) => x + y;
+
+add(2, 4); // 6
+```
+To this
+```javascript
+let x = 2;
+
+const add = (y) => {
+  x += y;
+};
+
+add(4); // x === 6 (the first time)
+```
+**2. Pure Functions = Consistent Results**  
+The first example returns a value based on the given parameters, regardless of where/when you call it.
+
+If you pass 2 and 4, you’ll always get 6.
+
+Nothing else affects the output.
+
+**Benefits**  
+* One of the major benefits of using pure functions is they are immediately testable. They will always produce the same result if you pass in the same arguments.
+* The pure functions are easier to parallelize
+* They also makes maintaining and refactoring code much easier.
+
+-------------------------------------------------------------------------
+### 36. What is memoization?
+
+Memoization is a programming technique which attempts to increase a function’s performance by caching its previously computed results.  Each time a memoized function is called, its parameters are used to index the cache. If the data is present, then it can be returned, without executing the entire function. Otherwise the function is executed and then the result is added to the cache.
+
+```javascript
+// A simple memoized function to Add Number
+const memoizedAdd = () => {
+  let cache = {};
+  return (number) => {
+    if (number in cache) {
+      console.log('Fetching from cache: ');
+      return cache[number];
+    }
+    else {
+      console.log('Calculating result: ');
+      let result = number + 10;
+      cache[number] = result;   // cache.number = result;
+      return result;
+    }
+  }
+}
+// returned function from memoizedAdd
+const sum = memoizedAdd();
+console.log(sum(10)); // Calculating result: 20
+console.log(sum(10)); // Fetching from cache: 20
+```
+
+-------------------------------------------------------------------------
+### 37. Explain event delegation.
+
+-------------------------------------------------------------------------
+### 38. What's the difference between host objects and native objects?
+
+Native objects are objects that are part of the JavaScript language defined by the ECMAScript specification, such as `String`, `Math`, `RegExp`, `Object`, `Function`, etc.
+
+Host objects are provided by the runtime environment (browser or Node), such as `window`, `XMLHTTPRequest`, etc.
+
+-------------------------------------------------------------------------
+### 39. Describe event bubbling.
+
+Event bubbling is a type of event propagation where the event first triggers on the innermost target element, and then successively triggers on the ancestors (parents) of the target element in the same nesting hierarchy till it reaches the outermost DOM element.
+
+Example: If you click on EM, the handler on DIV runs.  
+```html
+<div onclick="alert('The handler!')">
+  <em>If you click on <code>EM</code>, the handler on <code>DIV</code> runs.</em>
+</div>
+```
+* **Stopping bubbling**  
+```html
+<body onclick="alert(`the bubbling doesn't reach here`)">
+  <button onclick="event.stopPropagation()">Click me</button>
+</body>
+```
+-------------------------------------------------------------------------
+### 40. Describe event capturing.
+
+Event capturing is a type of event propagation where the event is first captured by the outermost element and then successively triggers on the descendants (children) of the target element in the same nesting hierarchy till it reaches the inner DOM element.
+
+-------------------------------------------------------------------------
+### 41. What is an event flow?
+
+Event flow is the order in which event is received on the web page. When you click an element that is nested in various other elements, before your click actually reaches its destination, or target element, it must trigger the click event each of its parent elements first, starting at the top with the global window object.
+
+There are two ways of event flow
+* Top to Bottom(Event Capturing)
+* Bottom to Top (Event Bubbling)
+ 
+-------------------------------------------------------------------------
+### 42. What is BOM?
+
+The Browser Object Model (BOM) allows JavaScript to "talk to" the browser. It consists of the objects navigator, history, screen, location and document which are children of window. The Browser Object Model is not standardized and can change based on different browsers.
+
+-------------------------------------------------------------------------
+### 43. What is the use of stopPropagation method?
+
+The stopPropagation method is used to stop the event from bubbling up the event chain. For example, the below nested divs with stopPropagation method prevents default event propagation when clicking on nested div(Div1)
+```html
+<p>Click DIV1 Element</p>
+<div onclick="secondFunc()">DIV 2
+  <div onclick="firstFunc(event)">DIV 1</div>
+</div>
+
+<script>
+function firstFunc(event) {
+  alert("DIV 1");
+  event.stopPropagation();
+}
+
+function secondFunc() {
+  alert("DIV 2");
+}
+</script>
+```
+-------------------------------------------------------------------------
+### 44. What are the properties used to get size of window?
+
+You can use innerWidth, innerHeight, clientWidth, clientHeight properties of windows, document element and document body objects to find the size of a window. Let's use them combination of these properties to calculate the size of a window or document,
+```javascript
+var width = window.innerWidth
+|| document.documentElement.clientWidth
+|| document.body.clientWidth;
+
+var height = window.innerHeight
+|| document.documentElement.clientHeight
+|| document.body.clientHeight;
+```
+-------------------------------------------------------------------------
+### 45. What are the DOM methods available for constraint validation?
+
+-------------------------------------------------------------------------
+### 46. How do you perform form validation using javascript?
+
+-------------------------------------------------------------------------
+### 47. How do you perform form validation without javascript?
+
+-------------------------------------------------------------------------
+### 48. What are the different methods to find HTML elements in DOM?
+
+-------------------------------------------------------------------------
+### 49. Explain the same-origin policy with regards to JavaScript.
+
+The same-origin policy prevents JavaScript from making requests across domain boundaries. An origin is defined as a combination of URI scheme, hostname, and port number. This policy prevents a malicious script on one page from obtaining access to sensitive data on another web page through that page's Document Object Model.
+
+-------------------------------------------------------------------------
+### 50. What is the difference between document load and DOMContentLoaded events?
+
+The `DOMContentLoaded` event is fired when the initial HTML document has been completely loaded and parsed, without waiting for assets(stylesheets, images, and subframes) to finish loading. Whereas The load event is fired when the whole page has loaded, including all dependent resources(stylesheets, images).
+
+-------------------------------------------------------------------------
+### 51. What is same-origin policy?
+
+The same-origin policy is a policy that prevents JavaScript from making requests across domain boundaries. An origin is defined as a combination of URI scheme, hostname, and port number. If you enable this policy then it prevents a malicious script on one page from obtaining access to sensitive data on another web page using Document Object Model(DOM).
+
+-------------------------------------------------------------------------
+### 52. How do you make synchronous HTTP request?
+
+Browsers provide an XMLHttpRequest object which can be used to make synchronous HTTP requests from JavaScript
+```javascript
+function httpGet(theUrl)
+{
+    var xmlHttpReq = new XMLHttpRequest();
+    xmlHttpReq.open( "GET", theUrl, false ); // false for synchronous request
+    xmlHttpReq.send( null );
+    return xmlHttpReq.responseText;
+}
+```
+
+-------------------------------------------------------------------------
+### 53. How do you make asynchronous HTTP request?
+
+Browsers provide an XMLHttpRequest object which can be used to make asynchronous HTTP requests from JavaScript by passing 3rd parameter as true.
+```javascript
+function httpGetAsync(theUrl, callback)
+{
+    var xmlHttpReq = new XMLHttpRequest();
+    xmlHttpReq.onreadystatechange = function() {
+        if (xmlHttpReq.readyState == 4 && xmlHttpReq.status == 200)
+            callback(xmlHttpReq.responseText);
+    }
+    xmlHttp.open("GET", theUrl, true); // true for asynchronous
+    xmlHttp.send(null);
+}
+```
+
+-------------------------------------------------------------------------
+### 54. What are the ways to execute javascript after page load?
+
+You can execute javascript after page load in many different ways,  
+**a.) window.onload:**
+```javascript
+window.onload = function ...
+```
+**b.) document.onload:**
+```javascript
+document.onload = function ...
+```
+**c.) body onload:**
+```html
+<body onload="script();">
+```
+
+-------------------------------------------------------------------------
+### 55. What is an HTTP Header?
+
+The HTTP headers are used to pass additional information between the clients and the server through the request and response header.
+> [Geek](https://www.geeksforgeeks.org/http-headers/) | [MDN](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers)
+
+-------------------------------------------------------------------------
+### 56. How can you prevent CORS issue?
+
+> [Resource](https://www.pivotpointsecurity.com/blog/cross-origin-resource-sharing-security/) |
+[Medium](https://medium.com/@dtkatz/3-ways-to-fix-the-cors-error-and-how-access-control-allow-origin-works-d97d55946d9)
+
+-------------------------------------------------------------------------
+### 57. When to use async and defer when loading JS files?
+
+> [Resource](https://flaviocopes.com/javascript-async-defer/)
+
+-------------------------------------------------------------------------
+### 58. Describe how Fetch API makes use of Promises.
+
+> [Medium](https://medium.com/@armando_amador/how-to-make-http-requests-using-fetch-api-and-promises-b0ca7370a444)
+
+-------------------------------------------------------------------------
+<!--
+What are "web workers"?
+What is HTML5 Web Storage? Explain localStorage and sessionStorage.
+What's the difference between the <svg> and <canvas> elements?
+What are custom attributes in HTML5?
+What are the drawbacks of cookies?
+What is purpose of watchPosition() method of geolocation object of HTML5?
+How do you manipulate DOM using service worker?
+What is a cookie?
+How do you delete a cookie?
+What is the main difference between localStorage and sessionStorage?
+How do you check web storage browser support?
+What is the difference between JavaScript and jQuery?
+What is $() in jQuery library?
+What are the effects methods used in jQuery?
+What is the use of toggle() method in JQuery?
+What is the use of html() method in JQuery?
+What is the use of css() method in JQuery?
+What is the starting point of code execution in jQuery?
+What is the difference between find and children methods?
+What are the selectors in jQuery? How many types of selectors are there in jQuery?
+What is the use of serialize() method in JQuery?
+What is the difference between jQuery.get() and jQuery.ajax()?
+Explain the difference between the .detach() and .remove() methods in jQuery.
+What's the difference between document.ready() and window.onload()?
+What's the difference between prop() and attr()?
+How do you rate limit requests to an ExpressJS route?
+How do you structure an Express REST API application?
+How to get GET (query string) variables in Express.js on Node.js?
+How to retrieve POST query parameters?
+How to get the full url in Express?
+What will you do if an Express route throws Error: request entity too large?
+How do you call a "local" function within module.exports from another function in module.exports?
+How do you serve static files with Express?
+What does body-parser module do with express?
+What is the use of parameter next used in Express routes?
+How to get remote client address in a route in Express?
+What is a middleware? How can you create one in ExpressJS?
+How to redirect 404 errors to a page in ExpressJS?
+What are res and req parameters in Express route functions?
+How to get hostname of current request in node.js Express?
+What is process.env.PORT in ExpressJS?
+NoSQL related questions
+What are the features of NoSQL?
+Explain the difference between NoSQL v/s Relational database?
+When should I use a NoSQL database instead of a relational database?
+How to do transactions/locking in MongoDB?
+Compare MongoDB with Couchbase and CouchbaseDB.
+Why is MongoDB not chosen for a 32-bit system?
+What are the key features of MongoDB?
+What is CRUD?
+What is Aggregation in MongoDB?
+What is the use of an Index in MongoDB?
+Which command is used to create a database in MongoDB?
+Which command is used to drop a database in MongoDB?
+Which command is used to create a backup of the database?
+What is a Collection in MongoDB?
+Which method is used to update documents into a collection?
+What is the role of profile in MongoDB?
+RDBMS related questions
+Why a database is called as relational database model?
+What are constraints in database?
+What is the difference between primary and foreign key?
+What is an index represent in relational database model?
+What do you understand by database Normalization?
+What is the difference between primary key and unique constraints?
+What are the differences between DDL, DML and DCL in SQL?
+What is the difference between having and where clause?
+What is Join?
+What is a transaction? What are ACID properties?
+List and explain the different types of JOIN clauses supported in ANSI-standard SQL.
+Write a SQL query to find the 10th highest employee salary from an Employee table.
+How can you select all the even number records from a table? Similarly, all the odd number records?
+What is the difference between IN and EXISTS?
+How do you copy data from one table to another table ?
+How to start a Postgresql server in a Linux system?
+Explain the use of aggregate functions in Postgresql?
+What is a JOIN? What are the different JOIN operations supported by ANSI SQL?
+ReactJS interview questions
+Differentiate between Real DOM and Virtual DOM.
+List some of the major advantages of React.
+What are the limitations of React?
+What is JSX?
+Can you explain what is the concept of Virtual DOM?
+Why can't browsers use JSX?
+How different is React's ES6 syntax when compared to ES5?
+How is React different from Angular?
+"In React, everything is a component". What does this statement mean?
+What is Props?
+What is a state in React and how is it used?
+Differentiate between states and props.
+How can you update the state of a component?
+What is arrow function in React? How is it used?
+Differentiate between stateful and stateless components.
+What are the different phases of React component's lifecycle?
+Explain the lifecycle methods of React components in detail.
+What are synthetic events in React?
+What do you understand by refs in React?
+What do you know about controlled and uncontrolled components?
+What are Higher Order Components(HOC)?
+What are Pure Components?
+What is the significance of keys in React?
+Why do we need a Router in React?
+What happens when you call setState?
+What's the difference between an Element and a Component in React?
+When would you use a Class Component over a Functional Component?
+What are refs in React and why are they important?
+In which lifecycle method do you make AJAX requests with a Class component?
+What are the most common approaches for styling a React application?
+What are the advantages of using Redux than managing the state locally?
+How is Redux different from Flux?
+What is the significance of Store in Redux?
+Explain the role of Reducer in Redux.
+How are Actions defined in Redux?
+Can you list down the components of Redux?
+What do you understand by "Single source of truth" in the world of Redux?
+What are the three principles that Redux follows?
+What is the typical flow of data in a React + Redux app?
+What is store in redux?
+Explain Reducers in Redux?
+Explain action's in Redux?
+What are Pure Functions?
+Can Redux only be used with React?
+Big O Based
+Why is O(n!) considered as one of the worst run time complexities for algorithms?
+Which runtime does Bubble sort run?
+Which runtime does Binary search run? Why?
+Array Based
+How to find the missing number in given integer array of 1 to 100?
+How to find the largest and smallest number in an unsorted integer array?
+How to find all pairs of integer array whose sum is equal to a given number?
+How to find the duplicate number on a given integer array?
+How to sort an integer array in place using QuickSort algorithm?
+How to remove duplicates from an array in place?
+How to reverse an array in place in Java?
+How to find multiple missing numbers in given integer array with duplicates?
+String Based
+How to Print duplicate characters from String?
+How to check if two Strings are anagrams of each other?
+How to print first non repeated character from String?
+How to reverse a given String using recursion?
+How to check if a String contains only digits? Also, can you convert a string with only numbers to its equivalent number data type?
+How to count a number of vowels and consonants in a given String?
+How to find all permutations of String?
+How to check if two String is a rotation of each other?
+How to check if given String is Palindrome?
+Linked List Based
+How to find the middle element of a singly linked list in one pass?
+How to reverse a linked list?
+How to reverse a singly linked list without recursion?
+How to remove duplicate nodes in an unsorted linked list?
+How to find the length of a singly linked list?
+How to find the 3rd node from the end in a singly linked list?
+How do you find the sum of two linked list using Stack?
+Tree Based
+Can you write a program to implement a binary search tree?
+How do you perform Pre-order traversal in a given binary tree?
+Write a Program to traverse a given binary tree in Pre-order without recursion.
+How to print all nodes of given binary tree using inorder traversal without recursion?
+How to implement Post-order traversal algorithm?
+How to traverse a binary tree in Post order traversal without recursion?
+How to Print all leaves of a binary search tree?
+How to count a number of leaf nodes in a given binary tree?
+How to perform a binary search in a given array?
+How can you find the depth of a graph?
+-->
+
+
+[Resource](https://github.com/learning-zone/javascript-interview-questions)
+<!-- Day 1
+Variable Declarations and Hoisting
+Template Literals
+Destructuring
+Sets and Maps
+Day 2
+Functions
+Javascript Classes
+Closures
+Day 3
+Functional Programming in Javascript
+Higher Order Functions
+Recursion
+Currying
+Map, Reduce, Some, Sort Filter and Find
+Chaining
+Function methods - apply, bind and call
+Day 4
+DOM
+DOM Selectors
+DOM Tree
+Creating the DOM elements
+DOM Events
+Scripting Forms
+Scripting CSS using Javascript
+Day 5
+Ajax
+Web page events
+Cross-Origin Requests
+HTTP
+Web APIs (Mostly HTML5 APIs)
+Other DOM/BOM related topics
+Day 6
+NodeJS
+NPM
+NodeJS Core Modules
+NodeJS Streams
+Event Emitter
+Promises
+Async/Await
+JSON Web Tokens
+NodeJS Debugging
+NodeJS Memory Leaks
+NodeJS and the CPU
+Popular External Utilities
+Day 7
+ExpressJS
+Middlewares
+Templating Engines
+Error Handlers
+Database Integration
+Common ExpressJS Libraries (Modules)
+Day 8
+Non Relational Databases & MongoDB
+Relational Databases & SQL
+Day 9
+ReactJS Introduction
+JSX, Components and Rendering
+Component State and Life-cycle
+Event Handling in Components
+Interacting with AJAX APIs
+React Router
+Advanced React Concepts
+Day 9 - Redux
+Introduction
+Actions
+Reducers
+Store
+Using Redux with React
+Using Redux with React Router
+Async actions in Redux
+Best Practices
+Day 10 - DSA
+Complexities
+Searching Algorithms
+Sorting Algorithms
+Linked List
+Stacks and Queues
+Hash Tables
+Heaps
+Priority Queue
+Trees
+Graphs
+Math based Algorithms
+Day 11 - Computer Science Fundamentals
+Number Representation in Computers
+CPU Architecture
+Operating Systems
+Process Management
+Networking) -->
